@@ -30,6 +30,7 @@ export default function App() {
         )}
         <SecondaryButton onClick={() => resetTime(25)}>25:00</SecondaryButton>
         <SecondaryButton onClick={() => resetTime(5)}>5:00</SecondaryButton>
+        {isInIframe() && 'iFrame!'}
       </Buttons>
     </Main>
   )
@@ -52,6 +53,14 @@ function minutesToMilliseconds(minutes: number) {
 
 function pad(time: number) {
   return time < 10 ? `0${time}` : time
+}
+
+function isInIframe() {
+  try {
+    return window.self !== window.top
+  } catch (e) {
+    return true
+  }
 }
 
 const Main = styled.div`
