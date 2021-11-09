@@ -19,6 +19,10 @@ export default function App() {
     return () => clearInterval(interval)
   }, [paused])
 
+  useEffect(() => {
+    document.title = formatTime(remainingTime)
+  }, [remainingTime])
+
   return (
     <Main>
       {formatTime(remainingTime)}
@@ -30,8 +34,19 @@ export default function App() {
         )}
         <SecondaryButton onClick={() => resetTime(25)}>25:00</SecondaryButton>
         <SecondaryButton onClick={() => resetTime(5)}>5:00</SecondaryButton>
-        {isInIframe() && 'iFrame!'}
       </Buttons>
+      {!isInIframe() && (
+        <Guide>
+          <h3>How to use with Notion</h3>
+          <ol>
+            <li>Copy the URL and paste it into Notion</li>
+            <li>
+              Choose <i>Create embed</i> from the popup menu
+            </li>
+            <li>Widget is displayed in Notion 💪</li>
+          </ol>
+        </Guide>
+      )}
     </Main>
   )
 
@@ -62,6 +77,20 @@ function isInIframe() {
     return true
   }
 }
+
+const Guide = styled.div`
+  font-size: 24px;
+
+  h3 {
+    text-align: center;
+    margin-bottom: 0;
+    margin-top: 3rem;
+  }
+
+  li {
+    margin-bottom: 0.5rem;
+  }
+`
 
 const Main = styled.div`
   display: flex;
