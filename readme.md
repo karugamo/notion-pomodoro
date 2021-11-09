@@ -1,4 +1,4 @@
-# react-template
+# notion-pomodoro
 
 Run development server with
 ```
