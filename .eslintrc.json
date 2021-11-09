@@ -1,0 +1,8 @@
+{
+  "extends": ["@flexi/eslint-config/typescript"],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}
