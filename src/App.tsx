@@ -5,13 +5,16 @@ import {useSharedState} from './firebase'
 const defaultDuration = minutesToMilliseconds(25)
 const intervalLength = 500
 
+console.log(!!window.location.hash.substr(1))
+const roomId = window.location.hash.substr(1) || generateRoomId()
+
 export default function App() {
   const [remainingTime, setRemainingTime] = useSharedState(
-    'test-id/remainingTime',
+    `${roomId}/remainingTime`,
     defaultDuration
   )
 
-  const [paused, setPaused] = useSharedState('test-id/paused', false)
+  const [paused, setPaused] = useSharedState(`${roomId}/paused`, false)
 
   useTick()
   useUpdateTitle()
@@ -155,3 +158,17 @@ const SecondaryButton = styled(Button)`
     background-color: #d8d8d4;
   }
 `
+
+function generateRoomId() {
+  console.log('huh?')
+  const randomId = getRandomId()
+  window.history.replaceState(null, null, `#${randomId}`)
+  return randomId
+}
+
+function getRandomId() {
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  )
+}
