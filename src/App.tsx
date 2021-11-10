@@ -1,34 +1,27 @@
-import React, {useState, useEffect} from 'react'
+import React, {useEffect} from 'react'
 import styled from 'styled-components'
+import {useSharedState} from './firebase'
 
 const defaultDuration = minutesToMilliseconds(25)
-const intervalLength = 100
+const intervalLength = 500
 
 export default function App() {
-  const [remainingTime, setRemainingTime] = useState<number>(defaultDuration)
-  const [paused, setPaused] = useState<boolean>(true)
+  const [remainingTime, setRemainingTime] = useSharedState(
+    'test-id/remainingTime',
+    defaultDuration
+  )
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!paused && remainingTime !== 0)
-        setRemainingTime((remainingTime) =>
-          Math.max(remainingTime - intervalLength, 0)
-        )
-    }, intervalLength)
+  const [paused, setPaused] = useSharedState('test-id/paused', false)
 
-    return () => clearInterval(interval)
-  }, [paused])
-
-  useEffect(() => {
-    document.title = formatTime(remainingTime)
-  }, [remainingTime])
+  useTick()
+  useUpdateTitle()
 
   return (
     <Main>
       {formatTime(remainingTime)}
       <Buttons>
         {remainingTime !== 0 && (
-          <Button onClick={() => setPaused((paused) => !paused)}>
+          <Button onClick={() => setPaused(!paused)}>
             {paused ? 'Play' : 'Pause'}
           </Button>
         )}
@@ -49,6 +42,23 @@ export default function App() {
       )}
     </Main>
   )
+
+  function useTick() {
+    useEffect(() => {
+      const interval = setInterval(() => {
+        if (!paused && remainingTime !== 0)
+          setRemainingTime(Math.max(remainingTime - intervalLength, 0))
+      }, intervalLength)
+
+      return () => clearInterval(interval)
+    }, [remainingTime, paused])
+  }
+
+  function useUpdateTitle() {
+    useEffect(() => {
+      document.title = formatTime(remainingTime)
+    }, [remainingTime])
+  }
 
   function resetTime(duration: number) {
     setRemainingTime(minutesToMilliseconds(duration))
