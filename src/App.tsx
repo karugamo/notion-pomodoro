@@ -14,7 +14,7 @@ export default function App() {
     defaultDuration
   )
 
-  const [paused, setPaused] = useSharedState(`${roomId}/paused`, false)
+  const [paused, setPaused] = useSharedState(`${roomId}/paused`, true)
 
   useTick()
   useUpdateTitle()
