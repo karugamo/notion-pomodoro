@@ -37,10 +37,10 @@ export default function App() {
             {paused ? 'Play' : 'Pause'}
           </Button>
         )}
-        <SecondaryButton onClick={() => resetTime(workTime, true)}>
+        <SecondaryButton onClick={resetTimeToWork}>
           {workTime}:00
         </SecondaryButton>
-        <SecondaryButton onClick={() => resetTime(breakTime, false)}>
+        <SecondaryButton onClick={resetTimeToBreak}>
           {breakTime}:00
         </SecondaryButton>
       </Buttons>
@@ -63,7 +63,12 @@ export default function App() {
     useEffect(() => {
       if (remainingTime === 0) {
         bell.play()
-        if (working) setCount(count + 1)
+        if (working) {
+          setCount(count + 1)
+          resetTimeToBreak()
+        } else {
+          resetTimeToWork()
+        }
       }
     }, [remainingTime, working])
   }
@@ -83,6 +88,14 @@ export default function App() {
     useEffect(() => {
       document.title = formatTime(remainingTime)
     }, [remainingTime])
+  }
+
+  function resetTimeToBreak() {
+    resetTime(breakTime, false)
+  }
+
+  function resetTimeToWork() {
+    resetTime(workTime, true)
   }
 
   function resetTime(duration: number, working: boolean) {
