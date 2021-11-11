@@ -6,6 +6,8 @@ const bell = new Audio(bellUrl)
 
 const defaultDuration = minutesToMilliseconds(25)
 const intervalLength = 500
+const workTime = 25
+const breakTime = 5
 
 const roomId = getQueryParam('id') || generateRoomId()
 
@@ -17,12 +19,17 @@ export default function App() {
 
   const [paused, setPaused] = useSharedState(`${roomId}/paused`, true)
 
+  const [count, setCount] = useSharedState(`${roomId}/count`, 1)
+
+  const [working, setWorking] = useSharedState(`${roomId}/working`, true)
+
   useTick()
-  useBell()
+  useEndTimer()
   useUpdateTitle()
 
   return (
     <Main>
+      <Count>№ {count}</Count>
       {formatTime(remainingTime)}
       <Buttons>
         {remainingTime !== 0 && (
@@ -30,8 +37,12 @@ export default function App() {
             {paused ? 'Play' : 'Pause'}
           </Button>
         )}
-        <SecondaryButton onClick={() => resetTime(25)}>25:00</SecondaryButton>
-        <SecondaryButton onClick={() => resetTime(5)}>5:00</SecondaryButton>
+        <SecondaryButton onClick={() => resetTime(workTime, true)}>
+          {workTime}:00
+        </SecondaryButton>
+        <SecondaryButton onClick={() => resetTime(breakTime, false)}>
+          {breakTime}:00
+        </SecondaryButton>
       </Buttons>
       {!isInIframe() && (
         <Guide>
@@ -48,12 +59,13 @@ export default function App() {
     </Main>
   )
 
-  function useBell() {
+  function useEndTimer() {
     useEffect(() => {
       if (remainingTime === 0) {
         bell.play()
+        if (working) setCount(count + 1)
       }
-    }, [remainingTime])
+    }, [remainingTime, working])
   }
 
   function useTick() {
@@ -73,9 +85,10 @@ export default function App() {
     }, [remainingTime])
   }
 
-  function resetTime(duration: number) {
+  function resetTime(duration: number, working: boolean) {
     setRemainingTime(minutesToMilliseconds(duration))
     setPaused(true)
+    setWorking(working)
   }
 }
 
@@ -132,6 +145,14 @@ const Buttons = styled.div`
   align-items: center;
   justify-content: center;
   gap: 16px;
+  margin-top: 0.75rem;
+`
+
+const Count = styled.div`
+  font-size: 36px;
+  display: flex;
+  align-items: flex-end;
+  color: #41413d;
 `
 
 const Button = styled.button`
