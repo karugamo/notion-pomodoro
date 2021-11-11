@@ -5,8 +5,7 @@ import {useSharedState} from './firebase'
 const defaultDuration = minutesToMilliseconds(25)
 const intervalLength = 500
 
-console.log(!!window.location.hash.substr(1))
-const roomId = window.location.hash.substr(1) || generateRoomId()
+const roomId = getQueryParam('id') || generateRoomId()
 
 export default function App() {
   const [remainingTime, setRemainingTime] = useSharedState(
@@ -160,10 +159,20 @@ const SecondaryButton = styled(Button)`
 `
 
 function generateRoomId() {
-  console.log('huh?')
   const randomId = getRandomId()
-  window.history.replaceState(null, null, `#${randomId}`)
+  setQueryParam('id', randomId)
   return randomId
+}
+
+function getQueryParam(name: string) {
+  const url = new URL(window.location.href)
+  return url.searchParams.get(name)
+}
+
+function setQueryParam(name: string, value: string) {
+  const url = new URL(window.location.href)
+  url.searchParams.set(name, value)
+  window.history.replaceState(null, null, url.toString())
 }
 
 function getRandomId() {
