@@ -1,6 +1,8 @@
 import React, {useEffect} from 'react'
 import styled from 'styled-components'
 import {useSharedState} from './firebase'
+const bellUrl = require('../assets/bell.mp3')
+const bell = new Audio(bellUrl)
 
 const defaultDuration = minutesToMilliseconds(25)
 const intervalLength = 500
@@ -16,6 +18,7 @@ export default function App() {
   const [paused, setPaused] = useSharedState(`${roomId}/paused`, true)
 
   useTick()
+  useBell()
   useUpdateTitle()
 
   return (
@@ -44,6 +47,14 @@ export default function App() {
       )}
     </Main>
   )
+
+  function useBell() {
+    useEffect(() => {
+      if (remainingTime === 0) {
+        bell.play()
+      }
+    }, [remainingTime])
+  }
 
   function useTick() {
     useEffect(() => {
