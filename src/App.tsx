@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react'
-import styled from 'styled-components'
+import styled, {ThemeProvider} from 'styled-components'
 import {useSharedState} from './firebase'
 const bellUrl = require('../assets/bell.mp3')
 const bell = new Audio(bellUrl)
@@ -10,6 +10,16 @@ const workTime = 25
 const breakTime = 5
 
 const roomId = getQueryParam('id') || generateRoomId()
+
+const workTheme = {
+  backgroundColor: '#eeeee4',
+  textColor: '#242422'
+}
+
+const breakTheme = {
+  backgroundColor: '#242422',
+  textColor: '#eeeee4'
+}
 
 export default function App() {
   const [remainingTime, setRemainingTime] = useSharedState(
@@ -28,35 +38,37 @@ export default function App() {
   useUpdateTitle()
 
   return (
-    <Main>
-      <Count>№ {count}</Count>
-      {formatTime(remainingTime)}
-      <Buttons>
-        {remainingTime !== 0 && (
-          <Button onClick={() => setPaused(!paused)}>
-            {paused ? 'Play' : 'Pause'}
-          </Button>
+    <ThemeProvider theme={working ? workTheme : breakTheme}>
+      <Main>
+        <Count>№ {count}</Count>
+        {formatTime(remainingTime)}
+        <Buttons>
+          {remainingTime !== 0 && (
+            <Button onClick={() => setPaused(!paused)}>
+              {paused ? 'Play' : 'Pause'}
+            </Button>
+          )}
+          <SecondaryButton onClick={resetTimeToWork}>
+            {workTime}:00
+          </SecondaryButton>
+          <SecondaryButton onClick={resetTimeToBreak}>
+            {breakTime}:00
+          </SecondaryButton>
+        </Buttons>
+        {!isInIframe() && (
+          <Guide>
+            <h3>How to use with Notion</h3>
+            <ol>
+              <li>Copy the URL and paste it into Notion</li>
+              <li>
+                Choose <i>Create embed</i> from the popup menu
+              </li>
+              <li>Widget is displayed in Notion 💪</li>
+            </ol>
+          </Guide>
         )}
-        <SecondaryButton onClick={resetTimeToWork}>
-          {workTime}:00
-        </SecondaryButton>
-        <SecondaryButton onClick={resetTimeToBreak}>
-          {breakTime}:00
-        </SecondaryButton>
-      </Buttons>
-      {!isInIframe() && (
-        <Guide>
-          <h3>How to use with Notion</h3>
-          <ol>
-            <li>Copy the URL and paste it into Notion</li>
-            <li>
-              Choose <i>Create embed</i> from the popup menu
-            </li>
-            <li>Widget is displayed in Notion 💪</li>
-          </ol>
-        </Guide>
-      )}
-    </Main>
+      </Main>
+    </ThemeProvider>
   )
 
   function useEndTimer() {
@@ -148,8 +160,8 @@ const Main = styled.div`
   justify-content: center;
   height: 100%;
 
-  background-color: #eeeee4;
-  color: #242422;
+  background-color: ${({theme}) => theme.backgroundColor};
+  color: ${({theme}) => theme.textColor};
   font-size: 75px;
 `
 
@@ -165,42 +177,33 @@ const Count = styled.div`
   font-size: 36px;
   display: flex;
   align-items: flex-end;
-  color: #41413d;
+  color: ${({theme}) => theme.textColor};
+  opacity: 0.8;
 `
 
 const Button = styled.button`
-  background-color: #242422;
+  background-color: ${({theme}) => theme.textColor};
   cursor: pointer;
   border-radius: 4px;
   border: none;
-  color: #eeeee4;
+  color: ${({theme}) => theme.backgroundColor};
   font-size: 16px;
   padding: 8px;
   width: 100px;
 
   &:hover {
-    background-color: #32322f;
+    opacity: 0.9;
   }
 
   &:active {
     transform: scale(0.95);
-    background-color: #1c1c1a;
   }
 `
 
 const SecondaryButton = styled(Button)`
-  background-color: #eeeee4;
-  color: #242422;
-  border: 1px solid #242422;
-
-  &:hover {
-    background-color: #e4e4e0;
-  }
-
-  &:active {
-    transform: scale(0.95);
-    background-color: #d8d8d4;
-  }
+  background-color: ${({theme}) => theme.backgroundColor};
+  color: ${({theme}) => theme.textColor};
+  border: 1px solid ${({theme}) => theme.textColor};
 `
 
 function generateRoomId() {
