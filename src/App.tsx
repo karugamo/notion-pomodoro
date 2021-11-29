@@ -40,7 +40,13 @@ export default function App() {
   return (
     <ThemeProvider theme={working ? workTheme : breakTheme}>
       <Main>
-        <Count>№ {count}</Count>
+        <CountContainer>
+          <CountButton onClick={() => setCount(Math.max(1, count - 1))}>
+            −
+          </CountButton>
+          <Count>№ {count}</Count>
+          <CountButton onClick={() => setCount(count + 1)}>+</CountButton>
+        </CountContainer>
         {formatTime(remainingTime)}
         <Buttons>
           {remainingTime !== 0 && (
@@ -165,6 +171,12 @@ const Main = styled.div`
   font-size: 75px;
 `
 
+const CountContainer = styled.div`
+  display: flex;
+  gap: 16px;
+  align-items: center;
+`
+
 const Buttons = styled.div`
   display: flex;
   align-items: center;
@@ -177,8 +189,24 @@ const Count = styled.div`
   font-size: 36px;
   display: flex;
   align-items: flex-end;
-  color: ${({theme}) => theme.textColor};
   opacity: 0.8;
+  color: ${({theme}) => theme.textColor};
+`
+
+const CountButton = styled.button`
+  font-size: 24px;
+  border: none;
+  color: ${({theme}) => theme.textColor};
+  background-color: ${({theme}) => theme.backgroundColor};
+  cursor: pointer;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+
+  &:hover {
+    color: ${({theme}) => theme.backgroundColor};
+    background-color: ${({theme}) => theme.textColor};
+  }
 `
 
 const Button = styled.button`
