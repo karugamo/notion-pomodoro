@@ -34,7 +34,6 @@ export default function App() {
   const [working, setWorking] = useSharedState(`${roomId}/working`, true)
 
   useTick()
-  useEndTimer()
   useUpdateTitle()
 
   return (
@@ -77,35 +76,33 @@ export default function App() {
     </ThemeProvider>
   )
 
-  function useEndTimer() {
-    useEffect(() => {
-      if (remainingTime === 0) {
-        bell.play()
-        if (working) {
-          setCount(count + 1)
-          resetTimeToBreak()
-        } else {
-          resetTimeToWork()
-        }
-      }
-    }, [remainingTime, working])
-  }
-
   function useTick() {
     useEffect(() => {
       const interval = setInterval(() => {
-        if (!paused && remainingTime !== 0)
-          setRemainingTime(Math.max(remainingTime - intervalLength, 0))
+        if (!paused && remainingTime !== 0) {
+          const time = Math.max(remainingTime - intervalLength, 0)
+          setRemainingTime(time)
+
+          if (time === 0) {
+            bell.play()
+            if (working) {
+              setCount(count + 1)
+              resetTimeToBreak()
+            } else {
+              resetTimeToWork()
+            }
+          }
+        }
       }, intervalLength)
 
       return () => clearInterval(interval)
-    }, [remainingTime, paused])
+    }, [remainingTime, paused, working])
   }
 
   function useUpdateTitle() {
     useEffect(() => {
-      document.title = formatTime(remainingTime)
-    }, [remainingTime])
+      document.title = ' № ' + count + ': ' + formatTime(remainingTime)
+    }, [remainingTime, count])
   }
 
   function resetTimeToBreak() {
