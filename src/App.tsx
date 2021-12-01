@@ -53,12 +53,8 @@ export default function App() {
               {paused ? 'Play' : 'Pause'}
             </Button>
           )}
-          <SecondaryButton onClick={resetTimeToWork}>
-            {workTime}:00
-          </SecondaryButton>
-          <SecondaryButton onClick={resetTimeToBreak}>
-            {breakTime}:00
-          </SecondaryButton>
+          <SecondaryButton onClick={startWork}>{workTime}:00</SecondaryButton>
+          <SecondaryButton onClick={startBreak}>{breakTime}:00</SecondaryButton>
         </Buttons>
         {!isInIframe() && (
           <Guide>
@@ -101,7 +97,12 @@ export default function App() {
 
   function useUpdateTitle() {
     useEffect(() => {
-      document.title = ' № ' + count + ': ' + formatTime(remainingTime)
+      document.title =
+        ' № ' +
+        count +
+        ': ' +
+        formatTime(remainingTime) +
+        (working ? ' 💪' : ' 🌙')
     }, [remainingTime, count])
   }
 
@@ -111,6 +112,16 @@ export default function App() {
 
   function resetTimeToWork() {
     resetTime(workTime, true)
+  }
+
+  function startWork() {
+    resetTime(workTime, true)
+    setPaused(false)
+  }
+
+  function startBreak() {
+    resetTime(breakTime, false)
+    setPaused(false)
   }
 
   function resetTime(duration: number, working: boolean) {
