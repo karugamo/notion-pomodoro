@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React, {useEffect, useState} from 'react'
 import styled, {ThemeProvider} from 'styled-components'
 import {useSharedState} from './firebase'
 const bellUrl = require('../assets/bell.mp3')
@@ -33,21 +33,34 @@ export default function App() {
 
   const [working, setWorking] = useSharedState(`${roomId}/working`, true)
 
+  const [mouseEntered, setMouseEntered] = useState(true)
+
   useTick()
   useUpdateTitle()
 
   return (
     <ThemeProvider theme={working ? workTheme : breakTheme}>
-      <Main>
+      <Main
+        onMouseEnter={() => setMouseEntered(true)}
+        onMouseLeave={() => setMouseEntered(false)}
+      >
         <CountContainer>
-          <CountButton onClick={() => setCount(Math.max(1, count - 1))}>
+          <CountButton
+            hidden={!mouseEntered}
+            onClick={() => setCount(Math.max(1, count - 1))}
+          >
             −
           </CountButton>
           <Count>№ {count}</Count>
-          <CountButton onClick={() => setCount(count + 1)}>+</CountButton>
+          <CountButton
+            hidden={!mouseEntered}
+            onClick={() => setCount(count + 1)}
+          >
+            +
+          </CountButton>
         </CountContainer>
         {formatTime(remainingTime)}
-        <Buttons>
+        <Buttons hidden={!mouseEntered}>
           {remainingTime !== 0 && (
             <Button onClick={() => setPaused(!paused)}>
               {paused ? 'Play' : 'Pause'}
@@ -185,12 +198,14 @@ const CountContainer = styled.div`
   align-items: center;
 `
 
-const Buttons = styled.div`
+const Buttons = styled.div<{hidden: boolean}>`
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 16px;
   margin-top: 0.75rem;
+  transition: opacity 0.3s ease-in-out;
+  ${({hidden}) => hidden && 'opacity: 0;'}
 `
 
 const Count = styled.div`
@@ -201,7 +216,7 @@ const Count = styled.div`
   color: ${({theme}) => theme.textColor};
 `
 
-const CountButton = styled.button`
+const CountButton = styled.button<{hidden: boolean}>`
   font-size: 24px;
   border: none;
   color: ${({theme}) => theme.textColor};
@@ -210,6 +225,9 @@ const CountButton = styled.button`
   border-radius: 50%;
   width: 30px;
   height: 30px;
+
+  transition: opacity 0.3s ease-in-out;
+  ${({hidden}) => hidden && 'opacity: 0;'}
 
   &:hover {
     color: ${({theme}) => theme.backgroundColor};
