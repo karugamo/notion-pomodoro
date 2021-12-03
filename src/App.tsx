@@ -1,42 +1,42 @@
-import React, {useEffect, useState} from 'react'
-import styled, {ThemeProvider} from 'styled-components'
-import {useSharedState} from './firebase'
-const bellUrl = require('../assets/bell.mp3')
-const bell = new Audio(bellUrl)
+import React, { useEffect, useState } from "react";
+import styled, { ThemeProvider } from "styled-components";
+import { useSharedState } from "./firebase";
+const bellUrl = require("../assets/bell.mp3");
+const bell = new Audio(bellUrl);
 
-const defaultDuration = minutesToMilliseconds(25)
-const intervalLength = 500
-const workTime = 25
-const breakTime = 5
+const defaultDuration = minutesToMilliseconds(25);
+const intervalLength = 500;
+const workTime = 25 * 2;
+const breakTime = 5 * 2;
 
-const roomId = getQueryParam('id') || generateRoomId()
+const roomId = getQueryParam("id") || generateRoomId();
 
 const workTheme = {
-  backgroundColor: '#eeeee4',
-  textColor: '#242422'
-}
+  backgroundColor: "#eeeee4",
+  textColor: "#242422",
+};
 
 const breakTheme = {
-  backgroundColor: '#242422',
-  textColor: '#eeeee4'
-}
+  backgroundColor: "#242422",
+  textColor: "#eeeee4",
+};
 
 export default function App() {
   const [remainingTime, setRemainingTime] = useSharedState(
     `${roomId}/remainingTime`,
     defaultDuration
-  )
+  );
 
-  const [paused, setPaused] = useSharedState(`${roomId}/paused`, true)
+  const [paused, setPaused] = useSharedState(`${roomId}/paused`, true);
 
-  const [count, setCount] = useSharedState(`${roomId}/count`, 1)
+  const [count, setCount] = useSharedState(`${roomId}/count`, 1);
 
-  const [working, setWorking] = useSharedState(`${roomId}/working`, true)
+  const [working, setWorking] = useSharedState(`${roomId}/working`, true);
 
-  const [mouseEntered, setMouseEntered] = useState(true)
+  const [mouseEntered, setMouseEntered] = useState(true);
 
-  useTick()
-  useUpdateTitle()
+  useTick();
+  useUpdateTitle();
 
   return (
     <ThemeProvider theme={working ? workTheme : breakTheme}>
@@ -63,7 +63,7 @@ export default function App() {
         <Buttons hidden={!mouseEntered}>
           {remainingTime !== 0 && (
             <Button onClick={() => setPaused(!paused)}>
-              {paused ? 'Play' : 'Pause'}
+              {paused ? "Play" : "Pause"}
             </Button>
           )}
           <SecondaryButton onClick={startWork}>{workTime}:00</SecondaryButton>
@@ -83,86 +83,86 @@ export default function App() {
         )}
       </Main>
     </ThemeProvider>
-  )
+  );
 
   function useTick() {
     useEffect(() => {
       const interval = setInterval(() => {
         if (!paused && remainingTime !== 0) {
-          const time = Math.max(remainingTime - intervalLength, 0)
-          setRemainingTime(time)
+          const time = Math.max(remainingTime - intervalLength, 0);
+          setRemainingTime(time);
 
           if (time === 0) {
-            bell.play()
+            bell.play();
             if (working) {
-              setCount(count + 1)
-              resetTimeToBreak()
+              setCount(count + 2);
+              resetTimeToBreak();
             } else {
-              resetTimeToWork()
+              resetTimeToWork();
             }
           }
         }
-      }, intervalLength)
+      }, intervalLength);
 
-      return () => clearInterval(interval)
-    }, [remainingTime, paused, working])
+      return () => clearInterval(interval);
+    }, [remainingTime, paused, working]);
   }
 
   function useUpdateTitle() {
     useEffect(() => {
       document.title =
-        ' № ' +
+        " № " +
         count +
-        ': ' +
+        ": " +
         formatTime(remainingTime) +
-        (working ? ' 💪' : ' 🌙')
-    }, [remainingTime, count])
+        (working ? " 💪" : " 🌙");
+    }, [remainingTime, count]);
   }
 
   function resetTimeToBreak() {
-    resetTime(breakTime, false)
+    resetTime(breakTime, false);
   }
 
   function resetTimeToWork() {
-    resetTime(workTime, true)
+    resetTime(workTime, true);
   }
 
   function startWork() {
-    resetTime(workTime, true)
-    setPaused(false)
+    resetTime(workTime, true);
+    setPaused(false);
   }
 
   function startBreak() {
-    resetTime(breakTime, false)
-    setPaused(false)
+    resetTime(breakTime, false);
+    setPaused(false);
   }
 
   function resetTime(duration: number, working: boolean) {
-    setRemainingTime(minutesToMilliseconds(duration))
-    setPaused(true)
-    setWorking(working)
+    setRemainingTime(minutesToMilliseconds(duration));
+    setPaused(true);
+    setWorking(working);
   }
 }
 
 function formatTime(time: number) {
-  const minutes = Math.floor(time / (60 * 1000))
-  const seconds = Math.floor((time % (60 * 1000)) / 1000)
-  return `${minutes}:${pad(seconds)}`
+  const minutes = Math.floor(time / (60 * 1000));
+  const seconds = Math.floor((time % (60 * 1000)) / 1000);
+  return `${minutes}:${pad(seconds)}`;
 }
 
 function minutesToMilliseconds(minutes: number) {
-  return minutes * 60 * 1000
+  return minutes * 60 * 1000;
 }
 
 function pad(time: number) {
-  return time < 10 ? `0${time}` : time
+  return time < 10 ? `0${time}` : time;
 }
 
 function isInIframe() {
   try {
-    return window.self !== window.top
+    return window.self !== window.top;
   } catch (e) {
-    return true
+    return true;
   }
 }
 
@@ -178,7 +178,7 @@ const Guide = styled.div`
   li {
     margin-bottom: 0.5rem;
   }
-`
+`;
 
 const Main = styled.div`
   display: flex;
@@ -187,60 +187,60 @@ const Main = styled.div`
   justify-content: center;
   height: 100%;
 
-  background-color: ${({theme}) => theme.backgroundColor};
-  color: ${({theme}) => theme.textColor};
+  background-color: ${({ theme }) => theme.backgroundColor};
+  color: ${({ theme }) => theme.textColor};
   font-size: 75px;
-`
+`;
 
 const CountContainer = styled.div`
   display: flex;
   gap: 16px;
   align-items: center;
-`
+`;
 
-const Buttons = styled.div<{hidden: boolean}>`
+const Buttons = styled.div<{ hidden: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 16px;
   margin-top: 0.75rem;
   transition: opacity 0.3s ease-in-out;
-  ${({hidden}) => hidden && 'opacity: 0;'}
-`
+  ${({ hidden }) => hidden && "opacity: 0;"}
+`;
 
 const Count = styled.div`
   font-size: 36px;
   display: flex;
   align-items: flex-end;
   opacity: 0.8;
-  color: ${({theme}) => theme.textColor};
-`
+  color: ${({ theme }) => theme.textColor};
+`;
 
-const CountButton = styled.button<{hidden: boolean}>`
+const CountButton = styled.button<{ hidden: boolean }>`
   font-size: 24px;
   border: none;
-  color: ${({theme}) => theme.textColor};
-  background-color: ${({theme}) => theme.backgroundColor};
+  color: ${({ theme }) => theme.textColor};
+  background-color: ${({ theme }) => theme.backgroundColor};
   cursor: pointer;
   border-radius: 50%;
   width: 30px;
   height: 30px;
 
   transition: opacity 0.3s ease-in-out;
-  ${({hidden}) => hidden && 'opacity: 0;'}
+  ${({ hidden }) => hidden && "opacity: 0;"}
 
   &:hover {
-    color: ${({theme}) => theme.backgroundColor};
-    background-color: ${({theme}) => theme.textColor};
+    color: ${({ theme }) => theme.backgroundColor};
+    background-color: ${({ theme }) => theme.textColor};
   }
-`
+`;
 
 const Button = styled.button`
-  background-color: ${({theme}) => theme.textColor};
+  background-color: ${({ theme }) => theme.textColor};
   cursor: pointer;
   border-radius: 4px;
   border: none;
-  color: ${({theme}) => theme.backgroundColor};
+  color: ${({ theme }) => theme.backgroundColor};
   font-size: 16px;
   padding: 8px;
   width: 100px;
@@ -252,34 +252,34 @@ const Button = styled.button`
   &:active {
     transform: scale(0.95);
   }
-`
+`;
 
 const SecondaryButton = styled(Button)`
-  background-color: ${({theme}) => theme.backgroundColor};
-  color: ${({theme}) => theme.textColor};
-  border: 1px solid ${({theme}) => theme.textColor};
-`
+  background-color: ${({ theme }) => theme.backgroundColor};
+  color: ${({ theme }) => theme.textColor};
+  border: 1px solid ${({ theme }) => theme.textColor};
+`;
 
 function generateRoomId() {
-  const randomId = getRandomId()
-  setQueryParam('id', randomId)
-  return randomId
+  const randomId = getRandomId();
+  setQueryParam("id", randomId);
+  return randomId;
 }
 
 function getQueryParam(name: string) {
-  const url = new URL(window.location.href)
-  return url.searchParams.get(name)
+  const url = new URL(window.location.href);
+  return url.searchParams.get(name);
 }
 
 function setQueryParam(name: string, value: string) {
-  const url = new URL(window.location.href)
-  url.searchParams.set(name, value)
-  window.history.replaceState(null, null, url.toString())
+  const url = new URL(window.location.href);
+  url.searchParams.set(name, value);
+  window.history.replaceState(null, null, url.toString());
 }
 
 function getRandomId() {
   return (
     Math.random().toString(36).substring(2, 15) +
     Math.random().toString(36).substring(2, 15)
-  )
+  );
 }
