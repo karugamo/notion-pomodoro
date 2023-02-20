@@ -22,10 +22,17 @@ const breakTheme = {
 }
 
 export default function App() {
-  const [remainingTime, setRemainingTime] = useSharedState(
-    `${roomId}/remainingTime`,
+  const [timerEndTime, setTimerEndTime] = useSharedState<number | null>(
+    `${roomId}/timerEndTime`,
+    null
+  )
+
+  const [timeLeft, setTimeLeft] = useSharedState<number>(
+    `${roomId}/timeLeft`,
     defaultDuration
   )
+
+  const remainingTime = timerEndTime ? timerEndTime - Date.now() : timeLeft
 
   const [paused, setPaused] = useSharedState(`${roomId}/paused`, true)
 
@@ -62,7 +69,7 @@ export default function App() {
         {formatTime(remainingTime)}
         <Buttons hidden={!mouseEntered}>
           {remainingTime !== 0 && (
-            <Button onClick={() => setPaused(!paused)}>
+            <Button onClick={playPauseTimer}>
               {paused ? 'Play' : 'Pause'}
             </Button>
           )}
@@ -86,11 +93,12 @@ export default function App() {
   )
 
   function useTick() {
+    const [ticks, setTicks] = useState(0)
     useEffect(() => {
       const interval = setInterval(() => {
         if (!paused && remainingTime !== 0) {
           const time = Math.max(remainingTime - intervalLength, 0)
-          setRemainingTime(time)
+          setTicks(ticks + 1)
 
           if (time === 0) {
             bell.play()
@@ -119,6 +127,17 @@ export default function App() {
     }, [remainingTime, count])
   }
 
+  function playPauseTimer() {
+    if (paused) {
+      setTimerEndTime(Date.now() + remainingTime)
+    } else {
+      setTimerEndTime(null)
+      setTimeLeft(remainingTime)
+    }
+
+    setPaused(!paused)
+  }
+
   function resetTimeToBreak() {
     resetTime(breakTime, false)
   }
@@ -138,7 +157,7 @@ export default function App() {
   }
 
   function resetTime(duration: number, working: boolean) {
-    setRemainingTime(minutesToMilliseconds(duration))
+    setTimerEndTime(Date.now() + minutesToMilliseconds(duration) + 1000)
     setPaused(true)
     setWorking(working)
   }
@@ -275,7 +294,7 @@ function getQueryParam(name: string) {
 function setQueryParam(name: string, value: string) {
   const url = new URL(window.location.href)
   url.searchParams.set(name, value)
-  window.history.replaceState(null, null, url.toString())
+  window.history.replaceState(null, '', url.toString())
 }
 
 function getRandomId() {

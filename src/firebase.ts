@@ -18,23 +18,26 @@ const app = initializeApp(firebaseConfig)
 
 const database = getDatabase(app)
 
-export function useSharedState(id = 'test-space', initialState) {
+export function useSharedState<ValueType>(
+  id = 'test-space',
+  initialState: ValueType
+) {
   const space = ref(database, id)
 
-  const [sharedState, setSharedState] = useState<any>(initialState)
+  const [sharedState, setSharedState] = useState<ValueType>(initialState)
 
   useEffect(() => {
     onValue(space, (snapshot) => {
-      if (isNull(snapshot.val())) return
+      if (!snapshot.exists()) return
       setSharedState(snapshot.val())
     })
   }, [])
 
-  function setState(value) {
+  function setState(value: ValueType) {
     set(space, value)
   }
 
-  return [sharedState, setState]
+  return [sharedState, setState] as const
 }
 
 export default app
