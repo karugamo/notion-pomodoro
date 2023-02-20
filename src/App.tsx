@@ -42,6 +42,8 @@ export default function App() {
 
   const [mouseEntered, setMouseEntered] = useState(true)
 
+  const [successFullCopy, setSuccessFullCopy] = useState(false)
+
   useTick()
   useUpdateTitle()
 
@@ -80,7 +82,12 @@ export default function App() {
           <Guide>
             <h3>How to use with Notion</h3>
             <ol>
-              <li>Copy the URL and paste it into Notion</li>
+              <li>
+                <SecondaryButton onClick={copyUrl}>
+                  {successFullCopy ? 'Copy the URL ✔' : 'Copy the URL'}
+                </SecondaryButton>{' '}
+                and paste it into Notion
+              </li>
               <li>
                 Choose <i>Create embed</i> from the popup menu
               </li>
@@ -91,6 +98,11 @@ export default function App() {
       </Main>
     </ThemeProvider>
   )
+
+  function copyUrl() {
+    navigator.clipboard.writeText(window.location.href)
+    setSuccessFullCopy(true)
+  }
 
   function useTick() {
     const [ticks, setTicks] = useState(0)
@@ -262,8 +274,9 @@ const Button = styled.button`
   border: none;
   color: ${({theme}) => theme.backgroundColor};
   font-size: 16px;
-  padding: 8px;
-  width: 100px;
+  padding: 8px 16px;
+  min-width: 100px;
+  white-space: nowrap;
 
   &:hover {
     opacity: 0.9;
