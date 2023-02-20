@@ -186,6 +186,7 @@ const Main = styled.div`
   align-items: center;
   justify-content: center;
   height: 100%;
+  font-variant: tabular-nums;
 
   background-color: ${({theme}) => theme.backgroundColor};
   color: ${({theme}) => theme.textColor};
